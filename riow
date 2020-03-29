@@ -42,11 +42,20 @@ fn fullscreen {
 }
 
 fn desktop {
+	# find and remember the current window
+	if(~ $shift 0){
+		for(f in /dev/wsys/*){
+			a=`{winread $f}
+			winid=`{basename $f}
+			if(~ $a(5) current)
+				echo -n $winid >/env/windeskcur_^$curdesktop
+		}
+	}
+
 	for(f in /dev/wsys/*){
 		if(! ~ `{winlabel $f} $sticky){
 			a=`{winread $f}
 			winid=`{basename $f}
-			windesk=`{test -f /env/windesk_^$winid && cat /env/windesk_^$winid}
 
 			if(~ $shift 1){ # moving the current window elsewhere
 				if(~ $a(5) current){
@@ -57,16 +66,13 @@ fn desktop {
 			if not {
 				# go through all visible windows
 				if(~ $a(6) visible){
-					if(~ $a(5) current)
-						echo -n $f >/env/windeskcur_^$curdesktop
-					if(~ $#windesk 0){ # no desktop and visible
-						# assign to the current one
-						echo -n $curdesktop >/env/windesk_^$winid
-					}
+					# assign to the current one
+					echo -n $curdesktop >/env/windesk_^$winid
 					# and hide
 					echo hide >$f/wctl
 				}
 				if not { # hidden, unhide if should be shown now
+					windesk=`{test -f /env/windesk_^$winid && cat /env/windesk_^$winid}
 					if(~ $windesk $1)
 						echo unhide >$f/wctl
 				}
@@ -74,8 +80,11 @@ fn desktop {
 		}
 	}
 	if(~ $shift 0){
-		if(test -f /env/windeskcur_^$1)
-			echo current >`{cat /env/windeskcur_^$1}^/wctl
+		if(test -f /env/windeskcur_^$1){
+			winid=`{cat /env/windeskcur_^$1}
+			if(test -f /env/windesk_^$winid && ~ `{cat /env/windesk_^$winid} $1)
+				echo current >/dev/wsys/^$winid^/wctl
+		}
 		curdesktop=$1
 	}
 }
