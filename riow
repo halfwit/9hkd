@@ -2,7 +2,7 @@
 rfork ne
 
 # these are shown on every desktop
-sticky=(kbmap stats winwatch)
+sticky=(desktop kbmap stats winwatch)
 
 alt=0
 ctl=0
@@ -117,6 +117,12 @@ fn handle {
 		desktop $ukey
 }
 
+scrsize
+
+echo $curdesktop > /tmp/desktop
+@{tail -f /tmp/desktop | aux/statusmsg -k -w `{echo $screenw-100|bc}^,`{echo $screenh-60|bc}^,$screenw^,$screenh desktop} &
+
 gkbd | while(s=`{read}){
 	handle $s
-}
+	echo $curdesktop
+} >> /tmp/desktop
