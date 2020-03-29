@@ -6,6 +6,28 @@ ctl=0
 glenda=0
 shift=0
 
+fn scrsize {
+	s=`{syscall -o read 0 buf 60 </dev/screen >[2]/dev/null}
+	screenw=$s(4)
+	screenh=$s(5)
+}
+
+fn fullscreen {
+	scrsize
+	for(f in /dev/wsys/*){
+		a=`{syscall -o read 0 buf 64 <$f/wctl >[2]/dev/null}
+		if(~ $a(5) current){
+			winid=`{basename $f}
+			if(~ $a(1) 0 && ~ $a(2) 0 && ~ $a(3) $screenw && ~ $a(4) $screenh)
+				echo resize -r `{eval echo '$winsize_'^$winid} >$f/wctl
+			if not {
+				eval 'winsize_'^$winid'=$a(1 2 3 4)'
+				echo resize -r 0 0 9999 9999 >$f/wctl
+			}
+		}
+	}
+}
+
 fn handle {
 	# remember old states
 	oalt=$alt
@@ -39,8 +61,10 @@ fn handle {
 			shift
 		}
 	}
-	if(! ~ $key '')
-		echo 'shift='^$shift 'alt='^$alt 'ctl='^$ctl 'glenda='^$glenda 'key='^$key
+	if(~ $key enter)
+		window
+	if(~ $key f)
+		fullscreen
 }
 
 while(s=`{read}){
