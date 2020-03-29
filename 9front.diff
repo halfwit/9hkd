@@ -1,0 +1,386 @@
+diff -r 95e095480480 sys/include/keyboard.h
+--- a/sys/include/keyboard.h	Sat Mar 28 15:37:48 2020 +0100
++++ b/sys/include/keyboard.h	Sun Mar 29 12:08:48 2020 +0200
+@@ -44,6 +44,8 @@
+ 	Kscrolloneup=	KF|0x20,
+ 	Kscrollonedown=	KF|0x21,
+ 
++	Kglenda=	KF|0x22,
++
+ 	Ksoh=	0x01,
+ 	Kstx=	0x02,
+ 	Ketx=	0x03,
+diff -r 95e095480480 sys/lib/kbmap/fi
+--- a/sys/lib/kbmap/fi	Sat Mar 28 15:37:48 2020 +0100
++++ b/sys/lib/kbmap/fi	Sun Mar 29 12:08:48 2020 +0200
+@@ -32,6 +32,8 @@
+ 1	52	':
+ 1	53	'_
+ 1	86	'>
++2	91	0xf022
++2	125	0xf022
+ 3	3	'@
+ 3	4	'£
+ 3	5	'$
+@@ -44,3 +46,5 @@
+ 3	27	'~
+ 3	46	'¢
+ 3	86	'|
++3	91	0xf022
++4	91	0xf022
+diff -r 95e095480480 sys/lib/kbmap/us
+--- a/sys/lib/kbmap/us	Sat Mar 28 15:37:48 2020 +0100
++++ b/sys/lib/kbmap/us	Sun Mar 29 12:08:48 2020 +0200
+@@ -345,7 +345,7 @@
+ 2	88	0
+ 2	89	0
+ 2	90	0
+-2	91	0
++2	91	0xf022
+ 2	92	0
+ 2	93	0
+ 2	94	0
+@@ -379,7 +379,7 @@
+ 2	122	0
+ 2	123	0
+ 2	124	0
+-2	125	0
++2	125	0xf022
+ 2	126	0
+ 2	127	0
+ 3	0	0
+@@ -473,7 +473,7 @@
+ 3	88	0
+ 3	89	0
+ 3	90	0
+-3	91	0
++3	91	0xf022
+ 3	92	0
+ 3	93	0
+ 3	94	0
+@@ -601,7 +601,7 @@
+ 4	88	^L
+ 4	89	0
+ 4	90	0
+-4	91	0
++4	91	0xf022
+ 4	92	0
+ 4	93	0
+ 4	94	0
+diff -r 95e095480480 sys/src/cmd/aux/kbdfs/kbdfs.c
+--- a/sys/src/cmd/aux/kbdfs/kbdfs.c	Sat Mar 28 15:37:48 2020 +0100
++++ b/sys/src/cmd/aux/kbdfs/kbdfs.c	Sun Mar 29 12:08:48 2020 +0200
+@@ -42,6 +42,7 @@
+ 	int	ctl;
+ 	int	alt;
+ 	int	altgr;
++	int glenda;
+ 	int	leds;
+ };
+ 
+@@ -178,11 +179,11 @@
+ [0x40]	0,	0,	0,	0,	0,	0,	Kbreak,	Khome,
+ [0x48]	Kup,	Kpgup,	0,	Kleft,	0,	Kright,	0,	Kend,
+ [0x50]	Kdown,	Kpgdown,Kins,	Kdel,	0,	0,	0,	0,
+-[0x58]	0,	0,	0,	0,	0,	0,	0,	0,
++[0x58]	0,	0,	0,	Kglenda,	0,	0,	0,	0,
+ [0x60]	0,	0,	0,	0,	0,	0,	0,	0,
+ [0x68]	0,	0,	0,	0,	0,	0,	0,	0,
+ [0x70]	0,	0,	0,	0,	0,	0,	0,	0,
+-[0x78]	0,	Kup,	0,	0,	0,	0,	0,	0,
++[0x78]	0,	Kup,	0,	0,	0,	Kglenda,	0,	0,
+ };
+ 
+ Rune kbtabshiftesc1[Nscan] =
+@@ -198,11 +199,11 @@
+ [0x40]	0,	0,	0,	0,	0,	0,	0,	0,
+ [0x48]	Kup,	0,	0,	0,	0,	0,	0,	0,
+ [0x50]	0,	0,	0,	0,	0,	0,	0,	0,
+-[0x58]	0,	0,	0,	0,	0,	0,	0,	0,
++[0x58]	0,	0,	0,	Kglenda,	0,	0,	0,	0,
+ [0x60]	0,	0,	0,	0,	0,	0,	0,	0,
+ [0x68]	0,	0,	0,	0,	0,	0,	0,	0,
+ [0x70]	0,	0,	0,	0,	0,	0,	0,	0,
+-[0x78]	0,	Kup,	0,	0,	0,	0,	0,	0,
++[0x78]	0,	Kup,	0,	0,	0,	Kglenda,	0,	0,
+ };
+ 
+ Rune kbtabctrlesc1[Nscan] =
+@@ -218,11 +219,11 @@
+ [0x40]	0,	0,	0,	0,	0,	0,	0,	0,
+ [0x48]	Kup,	0,	0,	0,	0,	0,	0,	0,
+ [0x50]	0,	0,	0,	0,	0,	0,	0,	0,
+-[0x58]	0,	0,	0,	0,	0,	0,	0,	0,
++[0x58]	0,	0,	0,	Kglenda,	0,	0,	0,	0,
+ [0x60]	0,	0,	0,	0,	0,	0,	0,	0,
+ [0x68]	0,	0,	0,	0,	0,	0,	0,	0,
+ [0x70]	0,	0,	0,	0,	0,	0,	0,	0,
+-[0x78]	0,	Kup,	0,	0,	0,	0,	0,	0,
++[0x78]	0,	Kup,	0,	0,	0,	Kglenda,	0,	0,
+ };
+ 
+ Rune kbtabaltgr[Nscan] =
+@@ -238,11 +239,11 @@
+ [0x40]	0,	0,	0,	0,	0,	0,	Kbreak,	Khome,
+ [0x48]	Kup,	Kpgup,	0,	Kleft,	0,	Kright,	0,	Kend,
+ [0x50]	Kdown,	Kpgdown,Kins,	Kdel,	0,	0,	0,	0,
+-[0x58]	0,	0,	0,	0,	0,	0,	0,	0,
++[0x58]	0,	0,	0,	Kglenda,	0,	0,	0,	0,
+ [0x60]	0,	0,	0,	0,	0,	0,	0,	0,
+ [0x68]	0,	0,	0,	0,	0,	0,	0,	0,
+ [0x70]	0,	0,	0,	0,	0,	0,	0,	0,
+-[0x78]	0,	Kup,	0,	0,	0,	0,	0,	0,
++[0x78]	0,	Kup,	0,	0,	0,	Kglenda,	0,	0,
+ };
+ 
+ Rune kbtabctl[Nscan] =
+@@ -258,11 +259,11 @@
+ [0x40]	'', 	'', 	'', 	'', 	'', 	'', 	'', 	'', 
+ [0x48]	'', 	'', 	'', 	'', 	'', 	'', 	'', 	'', 
+ [0x50]	'', 	'', 	'', 	'', 	0,	0,	0,	'', 
+-[0x58]	'', 	0,	0,	0,	0,	0,	0,	0,
++[0x58]	'', 	0,	0,	Kglenda,	0,	0,	0,	0,
+ [0x60]	0,	0,	0,	0,	0,	0,	0,	0,
+ [0x68]	0,	0,	0,	0,	0,	0,	0,	0,
+ [0x70]	0,	0,	0,	0,	0,	0,	0,	0,
+-[0x78]	0,	'', 	0,	'\b',	0,	0,	0,	0,
++[0x78]	0,	'', 	0,	'\b',	0,	Kglenda,	0,	0,
+ };
+ 
+ Rune kbtabshiftaltgr[Nscan] =
+@@ -344,7 +345,7 @@
+ 	if(scan->esc2){
+ 		scan->esc2--;
+ 		return;
+-	} else if(c == 0xe1 || c == 0xe2){
++	} else if(c == 0xe1 || c == 0xe2 || c == 0xe3){
+ 		scan->esc2 = 2;
+ 		return;
+ 	} else if(c == 0xe0){
+@@ -362,6 +363,7 @@
+ 	if(c != 0 && strchr("GHIKMOPQRS", c) != nil)
+ 		scan->esc1 |= !scan->num;
+ 
++	key.r = 0;
+ 	if(scan->esc1 && scan->ctl && kbtabctrlesc1[c] != 0)
+ 		key.r = kbtabctrlesc1[c];
+ 	else if(scan->esc1 && scan->shift && kbtabshiftesc1[c] != 0)
+@@ -412,6 +414,9 @@
+ 	case Kcaps:
+ 		scan->caps ^= key.down;
+ 		break;
++	case Kglenda:
++		scan->glenda ^= key.down;
++		break;
+ 	}
+ 	scan->esc1 = 0;
+ }
+@@ -464,7 +469,7 @@
+ 			}
+ 		}
+ 		/* button unknown to kbtab, use rune if no modifier keys are active */
+-		if(k.b == 0 && !a->shift && !a->altgr && !a->ctl)
++		if(k.b == 0 && !a->shift && !a->altgr && !a->ctl && !a->glenda)
+ 			k.b = k.r;
+ 		if(k.r == Kshift)
+ 			a->shift = k.down;
+@@ -472,6 +477,8 @@
+ 			a->altgr = k.down;
+ 		else if(k.r == Kctl)
+ 			a->ctl = k.down;
++		else if(k.r == Kglenda)
++			a->glenda = k.down;
+ 		send(keychan, &k);
+ 		break;
+ 
+@@ -664,6 +671,7 @@
+ 		case Knum:
+ 		case Kshift:
+ 		case Kaltgr:
++		case Kglenda:
+ 			/* ignore modifiers */
+ 			continue;
+ 
+diff -r 95e095480480 sys/src/cmd/rio/dat.h
+--- a/sys/src/cmd/rio/dat.h	Sat Mar 28 15:37:48 2020 +0100
++++ b/sys/src/cmd/rio/dat.h	Sun Mar 29 12:08:48 2020 +0200
+@@ -18,6 +18,7 @@
+ 	Qwindow,
+ 	Qwsys,		/* directory of window directories */
+ 	Qwsysdir,		/* window directory, child of wsys */
++	Qglenda,
+ 
+ 	QMAX,
+ };
+@@ -344,11 +345,15 @@
+ char		*startdir;
+ int		sweeping;
+ int		wctlfd;
++int		gkbdfd;
++Channel*	gkbdc;
+ char		srvpipe[];
+ char		srvwctl[];
++char		srvgkbd[];
+ int		errorshouldabort;
+ int		menuing;		/* menu action is pending; waiting for window to be indicated */
+ int		snarfversion;	/* updated each time it is written */
+ int		messagesize;		/* negotiated in 9P version setup */
+ int		shiftdown;
++int		glendadown;
+ int		debug;
+diff -r 95e095480480 sys/src/cmd/rio/fsys.c
+--- a/sys/src/cmd/rio/fsys.c	Sat Mar 28 15:37:48 2020 +0100
++++ b/sys/src/cmd/rio/fsys.c	Sun Mar 29 12:08:48 2020 +0200
+@@ -50,6 +50,7 @@
+ 
+ char	srvpipe[64];
+ char	srvwctl[64];
++char	srvgkbd[64];
+ 
+ static	Xfid*	filsysflush(Filsys*, Xfid*, Fid*);
+ static	Xfid*	filsysversion(Filsys*, Xfid*, Fid*);
+@@ -115,6 +116,34 @@
+ 	return 0;
+ }
+ 
++void
++gkbdproc(void *v)
++{
++	char *s;
++	int n, eofs;
++	Channel *c;
++
++	threadsetname("GKBDPROC");
++	c = v;
++
++	eofs = 0;
++	for(;;){
++		if((s = recvp(c)) == nil)
++			break;
++		n = write(gkbdfd, s, strlen(s));	/* room for \0 */
++		free(s);
++		if(n < 0)
++			break;
++		if(n == 0){
++			if(++eofs > 20)
++				break;
++			continue;
++		}
++		eofs = 0;
++	}
++	close(gkbdfd);
++}
++
+ Filsys*
+ filsysinit(Channel *cxfidalloc)
+ {
+@@ -152,6 +181,12 @@
+ 	post(srvwctl, "wctl", p0);
+ 	close(p0);
+ 
++	if(cexecpipe(&p0, &gkbdfd) < 0)
++		goto Rescue;
++	snprint(srvgkbd, sizeof(srvgkbd), "/srv/riogkbd.%s.%d", fs->user, pid);
++	post(srvgkbd, "gkbd", p0);
++	close(p0);
++
+ 	/*
+ 	 * Start server processes
+ 	 */
+@@ -160,6 +195,12 @@
+ 		error("wctl channel");
+ 	proccreate(wctlproc, c, 4096);
+ 	threadcreate(wctlthread, c, 4096);
++
++	gkbdc = chancreate(sizeof(char*), 0);
++	if(gkbdc == nil)
++		error("gkbd channel");
++	proccreate(gkbdproc, gkbdc, 4096);
++
+ 	proccreate(filsysproc, fs, 10000);
+ 
+ 	/*
+diff -r 95e095480480 sys/src/cmd/rio/rio.c
+--- a/sys/src/cmd/rio/rio.c	Sat Mar 28 15:37:48 2020 +0100
++++ b/sys/src/cmd/rio/rio.c	Sun Mar 29 12:08:48 2020 +0200
+@@ -344,8 +344,10 @@
+ 	threadsetname("keyboardthread");
+ 
+ 	while(s = recvp(kbdchan)){
+-		if(*s == 'k' || *s == 'K')
++		if(*s == 'k' || *s == 'K'){
+ 			shiftdown = utfrune(s+1, Kshift) != nil;
++			glendadown = utfrune(s+1, Kglenda) != nil;
++		}
+ 		if(input == nil || sendp(input->ck, s) <= 0)
+ 			free(s);
+ 	}
+diff -r 95e095480480 sys/src/cmd/rio/wind.c
+--- a/sys/src/cmd/rio/wind.c	Sat Mar 28 15:37:48 2020 +0100
++++ b/sys/src/cmd/rio/wind.c	Sun Mar 29 12:08:48 2020 +0200
+@@ -155,6 +155,13 @@
+ showcandidates(Window *, Completion *);
+ 
+ void
++wglendactl(Window *, char *s)
++{
++	if((s = strdup(s)) != nil)
++		sendp(gkbdc, s);
++}
++
++void
+ winctl(void *arg)
+ {
+ 	Rune *rp, *up, r;
+@@ -228,7 +235,7 @@
+ 			alts[WWread].op = CHANNOP;
+ 			alts[WCread].op = CHANNOP;
+ 		} else {
+-			alts[WKbdread].op = (w->kbdopen && kbdqw != kbdqr) ?
++			alts[WKbdread].op = (!glendadown && w->kbdopen && kbdqw != kbdqr) ?
+ 				CHANSND : CHANNOP;
+ 			alts[WMouseread].op = (w->mouseopen && w->mouse.counter != w->mouse.lastcounter) ? 
+ 				CHANSND : CHANNOP;
+@@ -259,11 +266,13 @@
+ 				kbdq[kbdqw++ % nelem(kbdq)] = kbds;
+ 			else
+ 				free(kbds);
+-			if(w->kbdopen)
++			if(w->kbdopen && !glendadown)
+ 				continue;
+ 			while(kbdqr != kbdqw){
+ 				kbds = kbdq[kbdqr++ % nelem(kbdq)];
+-				if(*kbds == 'c'){
++				if(glendadown)
++					wglendactl(w, kbds);
++				else if(*kbds == 'c'){
+ 					chartorune(&r, kbds+1);
+ 					if(r)
+ 						wkeyctl(w, r);
+@@ -280,8 +289,8 @@
+ 				if(nb+i > pair.ns)
+ 					break;
+ 				memmove((char*)pair.s + nb, kbds, i);
++				nb += i;
+ 				free(kbds);
+-				nb += i;
+ 				kbdqr++;
+ 			}
+ 			pair.ns = nb;
+@@ -597,11 +606,16 @@
+ 	case Kalt:
+ 	case Kctl:
+ 	case Kaltgr:
++	case Kglenda:
+ 		return;
+ 	}
+ 
+ 	if(w->i==nil)
+ 		return;
++
++	if(glendadown)
++		return;
++
+ 	/* navigation keys work only when mouse and kbd is not open */
+ 	if(!w->mouseopen)
+ 		switch(r){
