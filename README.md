@@ -22,6 +22,8 @@ No guarantees, use at your own risk and blah.
 ## Keys
 
 ```
-G-f       toggle fullscreen for the current window
-G-enter   start a new window
+G-f              toggle fullscreen for the current window
+G-enter          start a new window
+G-[0..9]         switch to a specific virtual desktop
+G-shift-[0..9]   move the current window to a specific virtual desktop
 ```
