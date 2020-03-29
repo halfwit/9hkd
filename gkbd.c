@@ -7,18 +7,19 @@ static struct {
 	Rune r;
 	char *k;
 }keys[] = {
-	{Kglenda, "glenda"},
-	{Kshift, "shift"},
-	{Kctl, "ctl"},
+	{'\t', "tab"},
+	{0x0a, "enter"},
+	{0x20, "space"},
 	{Kalt, "alt"},
+	{Kctl, "ctl"},
+	{Kdel, "del"},
+	{Kdown, "down"},
+	{Kesc, "esc"},
+	{Kglenda, "glenda"},
 	{Kleft, "left"},
 	{Kright, "right"},
-	{Kdown, "down"},
+	{Kshift, "shift"},
 	{Kup, "up"},
-	{10, "enter"},
-	{Kdel, "del"},
-	{0x20, "space"},
-	{Kesc, "esc"},
 };
 
 void
@@ -53,7 +54,7 @@ main(int argc, char **argv)
 			}
 
 			if(i >= nelem(keys)){
-				if(isalnum(r))
+				if(isprint(r))
 					n += sprint(out+n, "%C ", r);
 				else
 					n += sprint(out+n, "0x%x ", r);
