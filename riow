@@ -119,10 +119,12 @@ fn handle {
 
 scrsize
 
-echo $curdesktop > /tmp/desktop
-@{tail -f /tmp/desktop | aux/statusmsg -k -w `{echo $screenw-100|bc}^,`{echo $screenh-60|bc}^,$screenw^,$screenh desktop} &
+fn work {
+	echo '    '^$curdesktop
+	while(s=`{read}){
+		handle $s
+		echo '    '^$curdesktop
+	}
+}
 
-gkbd | while(s=`{read}){
-	handle $s
-	echo $curdesktop
-} >> /tmp/desktop
+gkbd | work | aux/statusmsg -k -w `{echo $screenw-100|bc}^,`{echo $screenh-60|bc}^,$screenw^,$screenh desktop
