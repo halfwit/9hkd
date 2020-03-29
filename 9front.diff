@@ -1,6 +1,6 @@
 diff -r 95e095480480 sys/include/keyboard.h
 --- a/sys/include/keyboard.h	Sat Mar 28 15:37:48 2020 +0100
-+++ b/sys/include/keyboard.h	Sun Mar 29 12:08:48 2020 +0200
++++ b/sys/include/keyboard.h	Sun Mar 29 15:03:32 2020 +0200
 @@ -44,6 +44,8 @@
  	Kscrolloneup=	KF|0x20,
  	Kscrollonedown=	KF|0x21,
@@ -12,7 +12,7 @@ diff -r 95e095480480 sys/include/keyboard.h
  	Ketx=	0x03,
 diff -r 95e095480480 sys/lib/kbmap/fi
 --- a/sys/lib/kbmap/fi	Sat Mar 28 15:37:48 2020 +0100
-+++ b/sys/lib/kbmap/fi	Sun Mar 29 12:08:48 2020 +0200
++++ b/sys/lib/kbmap/fi	Sun Mar 29 15:03:32 2020 +0200
 @@ -32,6 +32,8 @@
  1	52	':
  1	53	'_
@@ -30,7 +30,7 @@ diff -r 95e095480480 sys/lib/kbmap/fi
 +4	91	0xf022
 diff -r 95e095480480 sys/lib/kbmap/us
 --- a/sys/lib/kbmap/us	Sat Mar 28 15:37:48 2020 +0100
-+++ b/sys/lib/kbmap/us	Sun Mar 29 12:08:48 2020 +0200
++++ b/sys/lib/kbmap/us	Sun Mar 29 15:03:32 2020 +0200
 @@ -345,7 +345,7 @@
  2	88	0
  2	89	0
@@ -69,7 +69,7 @@ diff -r 95e095480480 sys/lib/kbmap/us
  4	94	0
 diff -r 95e095480480 sys/src/cmd/aux/kbdfs/kbdfs.c
 --- a/sys/src/cmd/aux/kbdfs/kbdfs.c	Sat Mar 28 15:37:48 2020 +0100
-+++ b/sys/src/cmd/aux/kbdfs/kbdfs.c	Sun Mar 29 12:08:48 2020 +0200
++++ b/sys/src/cmd/aux/kbdfs/kbdfs.c	Sun Mar 29 15:03:32 2020 +0200
 @@ -42,6 +42,7 @@
  	int	ctl;
  	int	alt;
@@ -203,16 +203,8 @@ diff -r 95e095480480 sys/src/cmd/aux/kbdfs/kbdfs.c
  
 diff -r 95e095480480 sys/src/cmd/rio/dat.h
 --- a/sys/src/cmd/rio/dat.h	Sat Mar 28 15:37:48 2020 +0100
-+++ b/sys/src/cmd/rio/dat.h	Sun Mar 29 12:08:48 2020 +0200
-@@ -18,6 +18,7 @@
- 	Qwindow,
- 	Qwsys,		/* directory of window directories */
- 	Qwsysdir,		/* window directory, child of wsys */
-+	Qglenda,
- 
- 	QMAX,
- };
-@@ -344,11 +345,15 @@
++++ b/sys/src/cmd/rio/dat.h	Sun Mar 29 15:03:32 2020 +0200
+@@ -344,11 +344,15 @@
  char		*startdir;
  int		sweeping;
  int		wctlfd;
@@ -230,7 +222,7 @@ diff -r 95e095480480 sys/src/cmd/rio/dat.h
  int		debug;
 diff -r 95e095480480 sys/src/cmd/rio/fsys.c
 --- a/sys/src/cmd/rio/fsys.c	Sat Mar 28 15:37:48 2020 +0100
-+++ b/sys/src/cmd/rio/fsys.c	Sun Mar 29 12:08:48 2020 +0200
++++ b/sys/src/cmd/rio/fsys.c	Sun Mar 29 15:03:32 2020 +0200
 @@ -50,6 +50,7 @@
  
  char	srvpipe[64];
@@ -302,85 +294,27 @@ diff -r 95e095480480 sys/src/cmd/rio/fsys.c
  	/*
 diff -r 95e095480480 sys/src/cmd/rio/rio.c
 --- a/sys/src/cmd/rio/rio.c	Sat Mar 28 15:37:48 2020 +0100
-+++ b/sys/src/cmd/rio/rio.c	Sun Mar 29 12:08:48 2020 +0200
-@@ -344,8 +344,10 @@
++++ b/sys/src/cmd/rio/rio.c	Sun Mar 29 15:03:32 2020 +0200
+@@ -340,13 +340,20 @@
+ keyboardthread(void*)
+ {
+ 	char *s;
++	int glendadownnew;
+ 
  	threadsetname("keyboardthread");
  
++	glendadownnew = 0;
  	while(s = recvp(kbdchan)){
 -		if(*s == 'k' || *s == 'K')
 +		if(*s == 'k' || *s == 'K'){
  			shiftdown = utfrune(s+1, Kshift) != nil;
-+			glendadown = utfrune(s+1, Kglenda) != nil;
+-		if(input == nil || sendp(input->ck, s) <= 0)
++			glendadownnew = utfrune(s+1, Kglenda) != nil;
 +		}
- 		if(input == nil || sendp(input->ck, s) <= 0)
++		if(glendadown || glendadownnew){
++			glendadown = glendadownnew;
++			sendp(gkbdc, s);
++		}else if(input == nil || sendp(input->ck, s) <= 0)
  			free(s);
  	}
-diff -r 95e095480480 sys/src/cmd/rio/wind.c
---- a/sys/src/cmd/rio/wind.c	Sat Mar 28 15:37:48 2020 +0100
-+++ b/sys/src/cmd/rio/wind.c	Sun Mar 29 12:08:48 2020 +0200
-@@ -155,6 +155,13 @@
- showcandidates(Window *, Completion *);
- 
- void
-+wglendactl(Window *, char *s)
-+{
-+	if((s = strdup(s)) != nil)
-+		sendp(gkbdc, s);
-+}
-+
-+void
- winctl(void *arg)
- {
- 	Rune *rp, *up, r;
-@@ -228,7 +235,7 @@
- 			alts[WWread].op = CHANNOP;
- 			alts[WCread].op = CHANNOP;
- 		} else {
--			alts[WKbdread].op = (w->kbdopen && kbdqw != kbdqr) ?
-+			alts[WKbdread].op = (!glendadown && w->kbdopen && kbdqw != kbdqr) ?
- 				CHANSND : CHANNOP;
- 			alts[WMouseread].op = (w->mouseopen && w->mouse.counter != w->mouse.lastcounter) ? 
- 				CHANSND : CHANNOP;
-@@ -259,11 +266,13 @@
- 				kbdq[kbdqw++ % nelem(kbdq)] = kbds;
- 			else
- 				free(kbds);
--			if(w->kbdopen)
-+			if(w->kbdopen && !glendadown)
- 				continue;
- 			while(kbdqr != kbdqw){
- 				kbds = kbdq[kbdqr++ % nelem(kbdq)];
--				if(*kbds == 'c'){
-+				if(glendadown)
-+					wglendactl(w, kbds);
-+				else if(*kbds == 'c'){
- 					chartorune(&r, kbds+1);
- 					if(r)
- 						wkeyctl(w, r);
-@@ -280,8 +289,8 @@
- 				if(nb+i > pair.ns)
- 					break;
- 				memmove((char*)pair.s + nb, kbds, i);
-+				nb += i;
- 				free(kbds);
--				nb += i;
- 				kbdqr++;
- 			}
- 			pair.ns = nb;
-@@ -597,11 +606,16 @@
- 	case Kalt:
- 	case Kctl:
- 	case Kaltgr:
-+	case Kglenda:
- 		return;
- 	}
- 
- 	if(w->i==nil)
- 		return;
-+
-+	if(glendadown)
-+		return;
-+
- 	/* navigation keys work only when mouse and kbd is not open */
- 	if(!w->mouseopen)
- 		switch(r){
+ }
