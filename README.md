@@ -1,23 +1,39 @@
 # riow
 
-Some kind of window management experiments with rio.
+Some kind of window management experiments with rio.  What does it do?
+It gives you virtual desktops to move window around to, by pressing
+keys, like i3. The window management code is written in `rc` and is done
+by reading and writing `/dev/wsys` for the most part. There are minimal
+changes to `kbdfs` (to add support for an extra key) and `rio` (to provide
+an additional `/srv/riogkbd.*` file).
 
-Apply `9front.diff`, run `mk install`.  It seems you also need to
-rebuild your kernel after that since there are changes made to
-`kbdfs`.
+*No guarantees, use at your own risk and blah.*
 
-The "super"/"windows"/"meta" keys is called "glenda", duh.
+## Features
 
-```
-What's all this racket going up here, son. Are you playing with your rio's color scheme again?
-It's not COLORS, it's ADVANCED WINDOWS MANAGEMENT SYSTEM! Here, watch this:
+ * virtual desktops from 1 to 0
+ * switch between desktops
+ * move windows between desktops
+ * toggle fullscreen on the current window
+ * start a new window
+ * "sticky" programs, by default `stats`, `kbmap` etc are shown on every desktop
 
-riow < /srv/*gkbd*
-```
+All that with simple shortcuts.
 
-## WARNING
+## Installation and usage
 
-No guarantees, use at your own risk and blah.
+Run `mk install` in this repo.  Apply `9front.diff` on your sources,
+rebuild `kbdfs` and `rio`.  You also need to rebuild your kernel after
+so it picks up new `kbdfs`, reboot.
+
+The `super/windows/meta/mod` keys are now called `glenda` here, duh.
+
+To start the actual window management thingy, open a new window in
+`rio` and type `riow < /srv/riogkbd*`. See *Keys* section and it you're
+happy with everything you can start `riow` automatically next time.
+Or not, you can use it when you need it.
+
+Modify `riow` to your own needs.
 
 ## Keys
 
