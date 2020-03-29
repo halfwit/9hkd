@@ -1,0 +1,29 @@
+#!/bin/rc
+rfork ne
+
+oldgdown=0
+
+fn gdown {
+	if(! ~ $oldgdown $1){
+		if(~ $1 0)
+			echo down $oldgdown → $1
+		if not
+			echo up $oldgdown → $1
+		oldgdown=$1
+	}
+}
+
+fn handlekey {
+	echo keydown $*($#*)
+}
+
+while(s=`{read}){
+	# glenda key alone
+	if(~ $s(1) K && ~ $#s 1)
+		gdown 0
+	if(~ $s(1) k && ~ $s(2) glenda)
+		gdown 1
+	if(~ $s(1) c){
+		handlekey $s
+	}
+}
