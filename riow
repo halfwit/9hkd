@@ -1,29 +1,48 @@
 #!/bin/rc
 rfork ne
 
-oldgdown=0
+alt=0
+ctl=0
+glenda=0
+shift=0
 
-fn gdown {
-	if(! ~ $oldgdown $1){
-		if(~ $1 0)
-			echo down $oldgdown → $1
-		if not
-			echo up $oldgdown → $1
-		oldgdown=$1
+fn handle {
+	# remember old states
+	oalt=$alt
+	octl=$ctl
+	oglenda=$glenda
+	oshift=$shift
+
+	m=$1
+	state=0
+	if(~ $1 k)
+		state=1
+	shift
+
+	key=''
+	if(~ $state K && ~ $#* 0){
+		alt=0
+		ctl=0
+		glenda=0
+		shift=0
 	}
-}
-
-fn handlekey {
-	echo keydown $*($#*)
+	if not {
+		while(! ~ $#* 0){
+			if(~ $1 alt || ~ $1 ctl || ~ $1 glenda || ~ $1 shift){
+				eval '$1=$state'
+			}
+			if not {
+				# only react to 'c'
+				if(~ $m c) 
+					key=$1
+			}
+			shift
+		}
+	}
+	if(! ~ $key '')
+		echo 'shift='^$shift 'alt='^$alt 'ctl='^$ctl 'glenda='^$glenda 'key='^$key
 }
 
 while(s=`{read}){
-	# glenda key alone
-	if(~ $s(1) K && ~ $#s 1)
-		gdown 0
-	if(~ $s(1) k && ~ $s(2) glenda)
-		gdown 1
-	if(~ $s(1) c){
-		handlekey $s
-	}
+	handle $s
 }
