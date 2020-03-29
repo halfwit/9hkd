@@ -1,7 +1,7 @@
 </$objtype/mkfile
 
 TARG=gkbd
-BIN=/$objtype/bin/
+BIN=/$objtype/bin
 
 OFILES=\
 	gkbd.$O\
@@ -9,3 +9,8 @@ OFILES=\
 default:V:	all
 
 </sys/src/cmd/mkone
+
+install:V: $BIN/$TARG $BIN/riow
+
+$BIN/riow: riow
+	cp $prereq $target

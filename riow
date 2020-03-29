@@ -67,6 +67,6 @@ fn handle {
 		fullscreen
 }
 
-while(s=`{read}){
+gkbd | while(s=`{read }){
 	handle $s
 }

@@ -12,9 +12,16 @@ The "super"/"windows"/"meta" keys is called "glenda", duh.
 What's all this racket going up here, son. Are you playing with your rio's color scheme again?
 It's not COLORS, it's ADVANCED WINDOWS MANAGEMENT SYSTEM! Here, watch this:
 
-gkbd < /srv/*gkbd* | awk '/k glenda enter/ { system("window"); }
+riow < /srv/*gkbd*
 ```
 
 ## WARNING
 
 No guarantees, use at your own risk and blah.
+
+## Keys
+
+```
+G-f       toggle fullscreen for the current window
+G-enter   start a new window
+```
