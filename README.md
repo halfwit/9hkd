@@ -7,7 +7,7 @@ by reading and writing `/dev/wsys` for the most part. There are minimal
 changes to `kbdfs` (to add support for an extra key) and `rio` (to provide
 an additional `/srv/riogkbd.*` file).
 
-*No guarantees, use at your own risk and blah.*
+*No guarantees, use at your own risk and blah. This isn't supposed to work with drawterm.*
 
 ## Features
 
