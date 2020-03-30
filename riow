@@ -81,7 +81,7 @@ fn desktop {
 							echo unhide >$f/wctl
 					}
 					# and remember it was hidden on the desktop we're still on
-					if(~ $windesk $curdesktop)
+					if(~ $windesk $curdesktop && ! test -f /env/winhidden_^$winid)
 						touch /env/winhidden_^$winid
 				}
 			}
