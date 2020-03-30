@@ -23,20 +23,27 @@ fn winlabel {
 	cat $1/label
 }
 
-fn fullscreen {
-	scrsize
+fn curwindow {
 	for(f in /dev/wsys/*){
 		a=`{winread $f}
-		if(~ $a(5) current){
-			winid=`{basename $f}
-			if(~ $a(1) 0 && ~ $a(2) 0 && ~ $a(3) $screenw && ~ $a(4) $screenh){
-				if(test -f /env/winsize_^$winid)
-					echo resize -r `{cat /env/winsize_^$winid} >$f/wctl
-			}
-			if not {
-				echo -n $a(1 2 3 4) >/env/winsize_^$winid
-				echo resize -r 0 0 9999 9999 >$f/wctl
-			}
+		if(~ $a(5) current)
+			basename $f
+	}
+}
+
+fn togglefullscreen {
+	winid=`{curwindow}
+	if(! ~ $#winid 0){
+		f=/dev/wsys/^$winid
+		a=`{winread $f}
+		scrsize
+		if(~ $a(1) 0 && ~ $a(2) 0 && ~ $a(3) $screenw && ~ $a(4) $screenh){
+			if(test -f /env/winsize_^$winid)
+				echo resize -r `{cat /env/winsize_^$winid} >$f/wctl
+		}
+		if not {
+			echo -n $a(1 2 3 4) >/env/winsize_^$winid
+			echo resize -r 0 0 9999 9999 >$f/wctl
 		}
 	}
 }
@@ -44,18 +51,17 @@ fn fullscreen {
 fn desktop {
 	# find and remember the current window
 	if(~ $shift 0){
-		for(f in /dev/wsys/*){
-			a=`{winread $f}
-			winid=`{basename $f}
-			if(~ $a(5) current)
-				echo -n $winid >/env/windeskcur_^$curdesktop
-		}
+		winid=`{curwindow}
+		if(! ~ $#winid 0)
+			echo -n $winid >/env/windeskcur_^$curdesktop
+		if not
+			rm -f /env/windeskcur_^$curdesktop
 	}
 
 	for(f in /dev/wsys/*){
-		if(! ~ `{winlabel $f} $sticky){
+		winid=`{basename $f}
+		if(! ~ `{winlabel $f} $sticky && ! test -f /env/winsticky_^$winid){
 			a=`{winread $f}
-			winid=`{basename $f}
 
 			if(~ $shift 1){ # moving the current window elsewhere
 				if(~ $a(5) current){
@@ -97,20 +103,30 @@ fn desktop {
 	}
 }
 
-fn handle {
-	# remember old states
-	oalt=$alt
-	octl=$ctl
-	oshift=$shift
+fn togglesticky {
+	winid=`{curwindow}
+	if(! ~ $#winid 0){
+		if(test -f /env/winsticky_^$winid)
+			rm -f /env/winsticky_^$winid
+		if not
+			touch /env/winsticky_^$winid
+	}
+}
 
+fn handle {
 	m=$1
 	state=0
 	if(~ $1 k)
 		state=1
 	shift
 
-	key=''
-	ukey=''
+	key='' # depending on the shift state (1 → !)
+	ukey='' # stays the same regardless of the shift state
+
+	# K is key down
+	# k is key up
+	# c is key (and repeat) with the shift applied
+
 	if(~ $state K && ~ $#* 0){
 		alt=0
 		ctl=0
@@ -133,7 +149,9 @@ fn handle {
 		if(~ $key enter)
 			window
 		if(~ $key f)
-			fullscreen
+			togglefullscreen
+		if(~ $key s)
+			togglesticky
 	}
 	if(~ $ukey [0-9] && ! ~ $ukey $curdesktop)
 		desktop $ukey

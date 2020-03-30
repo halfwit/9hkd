@@ -17,6 +17,7 @@ an additional `/srv/riogkbd.*` file).
  * toggle fullscreen on the current window
  * start a new window
  * "sticky" programs, by default `stats`, `kbmap` etc are shown on every desktop
+ * toggle "sticky" mode for current window
 
 All that with simple shortcuts.
 
@@ -39,6 +40,7 @@ Modify `riow` to your own needs.
 
 ```
 G-f              toggle fullscreen for the current window
+G-s              toggle "sticky" mode for the current window
 G-enter          start a new window
 G-[0..9]         switch to a specific virtual desktop
 G-shift-[0..9]   move the current window to a specific virtual desktop
