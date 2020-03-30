@@ -68,13 +68,21 @@ fn desktop {
 				if(~ $a(6) visible){
 					# assign to the current one
 					echo -n $curdesktop >/env/windesk_^$winid
+					# it was visible, make sure riow doesn't think otherwise later on
+					rm -f /env/winhidden_^$winid
 					# and hide
 					echo hide >$f/wctl
 				}
-				if not { # hidden, unhide if should be shown now
+				if not { # hidden
 					windesk=`{test -f /env/windesk_^$winid && cat /env/windesk_^$winid}
-					if(~ $windesk $1)
-						echo unhide >$f/wctl
+					if(~ $windesk $1){ # unhide if should be shown now
+						# unless it's supposed to stay hidden, of course
+						if(! test -f /env/winhidden_^$winid)
+							echo unhide >$f/wctl
+					}
+					# and remember it was hidden on the desktop we're still on
+					if(~ $windesk $curdesktop)
+						touch /env/winhidden_^$winid
 				}
 			}
 		}
