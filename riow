@@ -56,15 +56,6 @@ fn desktop {
 			echo -n $winid >/env/windeskcur_^$curdesktop
 		if not
 			rm -f /env/windeskcur_^$curdesktop
-
-		# show current window right away
-		if(test -f /env/windeskcur_^$1){
-			winid=`{cat /env/windeskcur_^$1}
-			if(test -f /dev/wsys/^$winid && test -f /env/windesk_^$winid && ~ `{cat /env/windesk_^$winid} $1){
-				echo unhide >/dev/wsys/^$winid^/wctl
-				echo current >/dev/wsys/^$winid^/wctl
-			}
-		}
 	}
 
 	hide=()
@@ -103,8 +94,14 @@ fn desktop {
 			}
 		}
 	}
-	if(~ $shift 0)
+	if(~ $shift 0){
+		if(test -f /env/windeskcur_^$1){
+			winid=`{cat /env/windeskcur_^$1}
+			if(test -d /dev/wsys/^$winid && test -f /env/windesk_^$winid && ~ `{cat /env/windesk_^$winid} $1)
+				echo current >/dev/wsys/^$winid^/wctl
+		}
 		curdesktop=$1
+	}
 	for(w in $hide)
 		echo hide >$w
 }
