@@ -96,7 +96,7 @@ fn desktop {
 	if(~ $shift 0){
 		if(test -f /env/windeskcur_^$1){
 			winid=`{cat /env/windeskcur_^$1}
-			if(test -f /env/windesk_^$winid && ~ `{cat /env/windesk_^$winid} $1)
+			if(test -f /dev/wsys/^$winid && test -f /env/windesk_^$winid && ~ `{cat /env/windesk_^$winid} $1)
 				echo current >/dev/wsys/^$winid^/wctl
 		}
 		curdesktop=$1
@@ -114,44 +114,35 @@ fn togglesticky {
 }
 
 fn handle {
+	# K is key down
+	# k is key up
+	# c is key (and repeat) with the shift applied
+
+	key='' # depending on the shift state (1 → !)
+	ukey='' # stays the same regardless of the shift state
 	m=$1
 	state=0
 	if(~ $1 k)
 		state=1
 	shift
-
-	key='' # depending on the shift state (1 → !)
-	ukey='' # stays the same regardless of the shift state
-
-	# K is key down
-	# k is key up
-	# c is key (and repeat) with the shift applied
-
-	if(~ $state K && ~ $#* 0){
+	if(~ $m K && ~ $#* 0){
 		alt=0
 		ctl=0
 		shift=0
 	}
-	if not {
-		while(! ~ $#* 0){
-			if(~ $1 alt || ~ $1 ctl || ~ $1 shift)
-				eval '$1=$state'
-			if not {
-				if(~ $m c) 
-					key=$1
-				if(~ $m k)
-					ukey=$1
-			}
-			shift
+	if not while(! ~ $#* 0){
+		if(~ $1 alt || ~ $1 ctl || ~ $1 shift)
+			eval '$1=$state'
+		if not {
+			if(~ $m c) key=$1
+			if(~ $m k) ukey=$1
 		}
+		shift
 	}
 	if(~ $alt 0 && ~ $ctl 0 && ~ $shift 0){
-		if(~ $key enter)
-			window
-		if(~ $key f)
-			togglefullscreen
-		if(~ $key s)
-			togglesticky
+		if(~ $key enter) window
+		if(~ $key f)     togglefullscreen
+		if(~ $key s)     togglesticky
 	}
 	if(~ $ukey [0-9] && ! ~ $ukey $curdesktop)
 		desktop $ukey
