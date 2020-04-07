@@ -56,8 +56,18 @@ fn desktop {
 			echo -n $winid >/env/windeskcur_^$curdesktop
 		if not
 			rm -f /env/windeskcur_^$curdesktop
+
+		# show current window right away
+		if(test -f /env/windeskcur_^$1){
+			winid=`{cat /env/windeskcur_^$1}
+			if(test -f /dev/wsys/^$winid && test -f /env/windesk_^$winid && ~ `{cat /env/windesk_^$winid} $1){
+				echo unhide >/dev/wsys/^$winid^/wctl
+				echo current >/dev/wsys/^$winid^/wctl
+			}
+		}
 	}
 
+	hide=()
 	for(f in /dev/wsys/*){
 		winid=`{basename $f}
 		if(! ~ `{winlabel $f} $sticky && ! test -f /env/winsticky_^$winid){
@@ -66,7 +76,7 @@ fn desktop {
 			if(~ $shift 1){ # moving the current window elsewhere
 				if(~ $a(5) current){
 					echo -n $1 >/env/windesk_^$winid
-					echo hide >$f/wctl
+					hide=($hide $f/wctl)
 				}
 			}
 			if not {
@@ -76,8 +86,8 @@ fn desktop {
 					echo -n $curdesktop >/env/windesk_^$winid
 					# it was visible, make sure riow doesn't think otherwise later on
 					rm -f /env/winhidden_^$winid
-					# and hide
-					echo hide >$f/wctl
+					# and hide later
+					hide=($hide $f/wctl)
 				}
 				if not { # hidden
 					windesk=`{test -f /env/windesk_^$winid && cat /env/windesk_^$winid}
@@ -93,14 +103,10 @@ fn desktop {
 			}
 		}
 	}
-	if(~ $shift 0){
-		if(test -f /env/windeskcur_^$1){
-			winid=`{cat /env/windeskcur_^$1}
-			if(test -f /dev/wsys/^$winid && test -f /env/windesk_^$winid && ~ `{cat /env/windesk_^$winid} $1)
-				echo current >/dev/wsys/^$winid^/wctl
-		}
+	if(~ $shift 0)
 		curdesktop=$1
-	}
+	for(w in $hide)
+		echo hide >$w
 }
 
 fn togglesticky {
