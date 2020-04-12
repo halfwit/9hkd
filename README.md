@@ -23,9 +23,9 @@ All that with simple shortcuts.
 
 ## Installation and usage
 
-Run `mk install` in this repo.  Apply `9front.diff` on your sources,
-rebuild `kbdfs` and `rio`.  You also need to rebuild your kernel after
-so it picks up new `kbdfs`, reboot.
+Apply `9front.diff` on your sources, rebuild `kbdfs` and `rio`.
+Run `mk install` in this repo. You also need to rebuild your kernel
+after so it picks up new `kbdfs`, reboot.
 
 The `super/windows/meta/mod` keys are now called `glenda` here, duh.
 
