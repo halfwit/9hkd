@@ -142,13 +142,15 @@ fn handle {
 		}
 		shift
 	}
-	if(~ $alt 0 && ~ $ctl 0 && ~ $shift 0){
-		if(~ $key enter) window
-		if(~ $key f)     togglefullscreen
-		if(~ $key s)     togglesticky
+	if(~ $ctl 0 && ~ $alt 0){
+		if(~ $shift 0){
+			if(~ $key enter) window
+			if(~ $key f)     togglefullscreen
+			if(~ $key s)     togglesticky
+		}
+		if(~ $ukey [0-9] && ! ~ $ukey $curdesktop)
+			desktop $ukey
 	}
-	if(~ $ukey [0-9] && ! ~ $ukey $curdesktop)
-		desktop $ukey
 }
 
 scrsize
