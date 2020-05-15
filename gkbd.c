@@ -15,7 +15,7 @@ static struct {
 	{Kdel, "del"},
 	{Kdown, "down"},
 	{Kesc, "esc"},
-	{Kglenda, "glenda"},
+	{Kmod4, "mod4"},
 	{Kleft, "left"},
 	{Kright, "right"},
 	{Kshift, "shift"},

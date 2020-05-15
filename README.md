@@ -4,10 +4,10 @@ Some kind of window management experiments with rio.  What does it do?
 It gives you virtual desktops to move window around to, by pressing
 keys, like i3. The window management code is written in `rc` and is done
 by reading and writing `/dev/wsys` for the most part. There are minimal
-changes to `kbdfs` (to add support for an extra key) and `rio` (to provide
-an additional `/srv/riogkbd.*` file).
+changes to `rio` (to provide an additional `/srv/riogkbd.*` file).
 
-*No guarantees, use at your own risk and blah. This isn't supposed to work with drawterm.*
+*No guarantees, use at your own risk and blah.  This isn't supposed to
+work with drawterm.*
 
 ## Features
 
@@ -23,11 +23,8 @@ All that with simple shortcuts.
 
 ## Installation and usage
 
-Apply `9front.diff` on your sources, rebuild `kbdfs` and `rio`.
-Run `mk install` in this repo. You also need to rebuild your kernel
-after so it picks up new `kbdfs`, reboot.
-
-The `super/windows/meta/mod` keys are now called `glenda` here, duh.
+Run `mk install` in this repo.  Apply `9front.diff` on your sources
+ (`hg import --no-commit 9front.diff`), rebuild `rio`.
 
 To start the actual window management thingy, open a new window in
 `rio` and type `riow < /srv/riogkbd*`. See *Keys* section and it you're
@@ -39,9 +36,9 @@ Modify `riow` to your own needs.
 ## Keys
 
 ```
-G-f              toggle fullscreen for the current window
-G-s              toggle "sticky" mode for the current window
-G-enter          start a new window
-G-[0..9]         switch to a specific virtual desktop
-G-shift-[0..9]   move the current window to a specific virtual desktop
+Mod4-f              toggle fullscreen for the current window
+Mod4-s              toggle "sticky" mode for the current window
+Mod4-enter          start a new window
+Mod4-[0..9]         switch to a specific virtual desktop
+Mod4-shift-[0..9]   move the current window to a specific virtual desktop
 ```
