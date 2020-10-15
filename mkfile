@@ -10,7 +10,7 @@ default:V:	all
 
 </sys/src/cmd/mkone
 
-install:V: $BIN/$TARG $BIN/riow
+install:V: $BIN/$TARG /rc/bin/riow
 
-$BIN/riow: riow
+/rc/bin/riow: riow
 	cp $prereq $target
