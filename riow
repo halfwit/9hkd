@@ -2,7 +2,7 @@
 rfork ne
 
 # these are shown on every desktop
-sticky=('cat clock' clock desktop kbmap stats winwatch)
+sticky=('cat clock' clock desktop faces kbmap stats winwatch)
 
 alt=0
 ctl=0
