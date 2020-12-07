@@ -1,64 +1,7 @@
-diff -r 35459627f401 sys/lib/kbmap/fi
---- a/sys/lib/kbmap/fi	Wed May 13 18:50:01 2020 -0700
-+++ b/sys/lib/kbmap/fi	Fri May 15 17:06:40 2020 +0200
-@@ -32,6 +32,8 @@
- 1	52	':
- 1	53	'_
- 1	86	'>
-+2	91	0xf868
-+2	125	0xf868
- 3	3	'@
- 3	4	'£
- 3	5	'$
-@@ -44,3 +46,5 @@
- 3	27	'~
- 3	46	'¢
- 3	86	'|
-+3	91	0xf022
-+4	91	0xf022
-diff -r 35459627f401 sys/lib/kbmap/us
---- a/sys/lib/kbmap/us	Wed May 13 18:50:01 2020 -0700
-+++ b/sys/lib/kbmap/us	Fri May 15 17:06:40 2020 +0200
-@@ -345,7 +345,7 @@
- 2	88	0
- 2	89	0
- 2	90	0
--2	91	0
-+2	91	0xf868
- 2	92	0
- 2	93	0
- 2	94	0
-@@ -379,7 +379,7 @@
- 2	122	0
- 2	123	0
- 2	124	0
--2	125	0
-+2	125	0xf868
- 2	126	0
- 2	127	0
- 3	0	0
-@@ -473,7 +473,7 @@
- 3	88	0
- 3	89	0
- 3	90	0
--3	91	0
-+3	91	0xf868
- 3	92	0
- 3	93	0
- 3	94	0
-@@ -601,7 +601,7 @@
- 4	88	^L
- 4	89	0
- 4	90	0
--4	91	0
-+4	91	0xf868
- 4	92	0
- 4	93	0
- 4	94	0
-diff -r 35459627f401 sys/src/cmd/rio/dat.h
---- a/sys/src/cmd/rio/dat.h	Wed May 13 18:50:01 2020 -0700
-+++ b/sys/src/cmd/rio/dat.h	Fri May 15 17:06:40 2020 +0200
-@@ -344,11 +344,15 @@
+diff -r ab6ef2653d12 sys/src/cmd/rio/dat.h
+--- a/sys/src/cmd/rio/dat.h	Mon Dec 07 15:15:02 2020 +0100
++++ b/sys/src/cmd/rio/dat.h	Mon Dec 07 15:56:46 2020 +0100
+@@ -346,11 +346,15 @@
  char		*startdir;
  int		sweeping;
  int		wctlfd;
@@ -74,9 +17,9 @@ diff -r 35459627f401 sys/src/cmd/rio/dat.h
  int		shiftdown;
 +int		mod4down;
  int		debug;
-diff -r 35459627f401 sys/src/cmd/rio/fsys.c
---- a/sys/src/cmd/rio/fsys.c	Wed May 13 18:50:01 2020 -0700
-+++ b/sys/src/cmd/rio/fsys.c	Fri May 15 17:06:40 2020 +0200
+diff -r ab6ef2653d12 sys/src/cmd/rio/fsys.c
+--- a/sys/src/cmd/rio/fsys.c	Mon Dec 07 15:15:02 2020 +0100
++++ b/sys/src/cmd/rio/fsys.c	Mon Dec 07 15:56:46 2020 +0100
 @@ -50,6 +50,7 @@
  
  char	srvpipe[64];
@@ -120,20 +63,20 @@ diff -r 35459627f401 sys/src/cmd/rio/fsys.c
  Filsys*
  filsysinit(Channel *cxfidalloc)
  {
-@@ -152,6 +181,12 @@
+@@ -142,6 +171,12 @@
  	post(srvwctl, "wctl", p0);
  	close(p0);
  
 +	if(cexecpipe(&p0, &gkbdfd) < 0)
 +		goto Rescue;
-+	snprint(srvgkbd, sizeof(srvgkbd), "/srv/riogkbd.%s.%d", fs->user, pid);
++	snprint(srvgkbd, sizeof(srvgkbd), "/srv/riogkbd.%s.%lud", fs->user, (ulong)getpid());
 +	post(srvgkbd, "gkbd", p0);
 +	close(p0);
 +
  	/*
  	 * Start server processes
  	 */
-@@ -160,6 +195,12 @@
+@@ -150,6 +185,12 @@
  		error("wctl channel");
  	proccreate(wctlproc, c, 4096);
  	threadcreate(wctlthread, c, 4096);
@@ -146,9 +89,9 @@ diff -r 35459627f401 sys/src/cmd/rio/fsys.c
  	proccreate(filsysproc, fs, 10000);
  
  	/*
-diff -r 35459627f401 sys/src/cmd/rio/rio.c
---- a/sys/src/cmd/rio/rio.c	Wed May 13 18:50:01 2020 -0700
-+++ b/sys/src/cmd/rio/rio.c	Fri May 15 17:06:40 2020 +0200
+diff -r ab6ef2653d12 sys/src/cmd/rio/rio.c
+--- a/sys/src/cmd/rio/rio.c	Mon Dec 07 15:15:02 2020 +0100
++++ b/sys/src/cmd/rio/rio.c	Mon Dec 07 15:56:46 2020 +0100
 @@ -340,13 +340,20 @@
  keyboardthread(void*)
  {

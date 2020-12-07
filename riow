@@ -2,7 +2,7 @@
 rfork ne
 
 # these are shown on every desktop
-sticky=('cat clock' clock desktop faces kbmap stats winwatch)
+sticky=(bar 'cat clock' clock desktop faces kbmap stats winwatch)
 
 alt=0
 ctl=0
@@ -10,13 +10,13 @@ shift=0
 curdesktop=1
 
 fn scrsize {
-	s=`{syscall -o read 0 buf 60 </dev/screen >[2]/dev/null}
+	s=`{dd -quiet 1 -if /dev/screen -bs 60 -count 1 >[2]/dev/null}
 	screenw=$s(4)
 	screenh=$s(5)
 }
 
 fn winread {
-	syscall -o read 0 buf 120 <$1/wctl >[2]/dev/null
+	dd -quiet 1 -if $1/wctl -bs 120 -count 1 >[2]/dev/null
 }
 
 fn winlabel {
@@ -39,11 +39,11 @@ fn togglefullscreen {
 		scrsize
 		if(~ $a(1) 0 && ~ $a(2) 0 && ~ $a(3) $screenw && ~ $a(4) $screenh){
 			if(test -f /env/winsize_^$winid)
-				echo resize -r `{cat /env/winsize_^$winid} >$f/wctl
+				echo resize -r `{cat /env/winsize_^$winid} >$f/wctl >[2]/dev/null
 		}
 		if not {
 			echo -n $a(1 2 3 4) >/env/winsize_^$winid
-			echo resize -r 0 0 9999 9999 >$f/wctl
+			echo resize -r 0 0 9999 9999 >$f/wctl >[2]/dev/null
 		}
 	}
 }
@@ -85,7 +85,7 @@ fn desktop {
 					if(~ $windesk $1){ # unhide if should be shown now
 						# unless it's supposed to stay hidden, of course
 						if(! test -f /env/winhidden_^$winid)
-							echo unhide >$f/wctl
+							echo unhide >$f/wctl >[2]/dev/null
 					}
 					# and remember it was hidden on the desktop we're still on
 					if(~ $windesk $curdesktop && ! test -f /env/winhidden_^$winid)
@@ -98,7 +98,7 @@ fn desktop {
 		if(test -f /env/windeskcur_^$1){
 			winid=`{cat /env/windeskcur_^$1}
 			if(test -d /dev/wsys/^$winid && test -f /env/windesk_^$winid && ~ `{cat /env/windesk_^$winid} $1)
-				echo current >/dev/wsys/^$winid^/wctl
+				echo current >/dev/wsys/^$winid^/wctl >[2]/dev/null
 		}
 		curdesktop=$1
 	}
