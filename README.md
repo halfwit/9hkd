@@ -26,10 +26,9 @@ All that with simple shortcuts.
 Run `mk install` in this repo.  Apply `9front.diff` on your sources
  (`hg import --no-commit 9front.diff`), rebuild `rio`.
 
-To start the actual window management thingy, open a new window in
-`rio` and type `riow < /srv/riogkbd*`. See *Keys* section and it you're
-happy with everything you can start `riow` automatically next time.
-Or not, you can use it when you need it.
+To start `riow`, either through `riostart`, or by hand:
+
+	window -hide 'riow < `{echo $wsys | sed ''s/rio/riogkbd/''}'
 
 Modify `riow` to your own needs.
 

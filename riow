@@ -156,11 +156,15 @@ fn handle {
 scrsize
 
 fn work {
-	echo '    '^$curdesktop
+	echo $curdesktop
 	while(s=`{read}){
 		handle $s
-		echo '    '^$curdesktop
+		echo $curdesktop
 	}
 }
 
-gkbd | work | aux/statusmsg -k -w `{echo $screenw-100|bc}^,`{echo $screenh-60|bc}^,$screenw^,$screenh desktop
+fn display {
+	bar || aux/statusmsg -k -w `{echo $screenw-100|bc}^,`{echo $screenh-60|bc}^,$screenw^,$screenh desktop
+}
+
+gkbd < `{echo $wsys | sed 's/rio\./riogkbd./'} | work | display
