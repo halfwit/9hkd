@@ -28,7 +28,7 @@ Run `mk install` in this repo.  Apply `9front.diff` on your sources
 
 To start `riow`, either through `riostart`, or by hand:
 
-	window -hide 'riow < `{echo $wsys | sed ''s/rio/riogkbd/''}'
+	window -hide -scroll riow
 
 Modify `riow` to your own needs.
 
