@@ -28,7 +28,10 @@ Run `mk install` in this repo.  Apply `9front.diff` on your sources
 
 To start `riow`, either through `riostart`, or by hand:
 
-	window -hide -scroll riow
+	window -scroll riow
+
+If you're *NOT* using [bar](https://git.sr.ht/~ft/bar), run with
+`-hide` as well.
 
 Modify `riow` to your own needs.
 
