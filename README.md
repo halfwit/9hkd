@@ -41,3 +41,9 @@ Mod4-enter          start a new window
 Mod4-[0..9]         switch to a specific virtual desktop
 Mod4-shift-[0..9]   move the current window to a specific virtual desktop
 ```
+
+## Extras
+
+[Rio theming](http://ftrv.se/14)
+
+[bar](https://git.sr.ht/~ft/bar)
