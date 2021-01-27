@@ -4,6 +4,10 @@ rfork ne
 # these are shown on every desktop
 sticky=(bar 'cat clock' clock desktop faces kbmap stats winwatch)
 
+# window move/resize step (in pixels)
+step=96
+stepsmall=8
+
 alt=0
 ctl=0
 shift=0
@@ -116,6 +120,33 @@ fn togglesticky {
 	}
 }
 
+fn arrows {
+	winid=`{curwindow}
+	if(! ~ $#winid 0){
+		f=/dev/wsys/^$winid
+		x=+0
+		y=+0
+		if(~ $2 0)
+			s=$step
+		if not
+			s=$stepsmall
+		~ $1 up    && y=-$s
+		~ $1 right && x=+$s
+		~ $1 down  && y=+$s
+		~ $1 left  && x=-$s
+
+		if(~ $3 0 && ~ $4 0){
+			echo move -minx $x -miny $y >> $f/wctl
+		}
+		if not{
+			if(~ $4 0)
+				echo resize -maxx $x -maxy $y >> $f/wctl
+			if not
+				echo resize -minx $x -miny $y >> $f/wctl
+		}
+	}
+}
+
 fn handle {
 	# K is key down
 	# k is key up
@@ -151,6 +182,7 @@ fn handle {
 		if(~ $ukey [0-9] && ! ~ $ukey $curdesktop)
 			desktop $ukey
 	}
+	arrows $key $shift $ctl $alt
 }
 
 scrsize

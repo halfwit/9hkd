@@ -43,6 +43,15 @@ Mod4-s              toggle "sticky" mode for the current window
 Mod4-enter          start a new window
 Mod4-[0..9]         switch to a specific virtual desktop
 Mod4-shift-[0..9]   move the current window to a specific virtual desktop
+
+Mod4-[↑↓←→]         move the window (big steps)
+Mod4-shift-[↑↓←→]   move the window (small steps)
+
+Mod4-ctrl-[↑↓←→]        drag bottom-right of the window (big steps)
+Mod4-ctrl-shift-[↑↓←→]  drag bottom-right of the window (small steps)
+
+Mod4-alt-[↑↓←→]        drag top-left of the window (big steps)
+Mod4-alt-shift-[↑↓←→]  drag top-left of the window (small steps)
 ```
 
 ## Extras
