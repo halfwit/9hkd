@@ -62,6 +62,7 @@ fn desktop {
 			rm -f /env/windeskcur_^$curdesktop
 	}
 
+	unhide=()
 	hide=()
 	for(f in /dev/wsys/*){
 		winid=`{basename $f}
@@ -89,7 +90,7 @@ fn desktop {
 					if(~ $windesk $1){ # unhide if should be shown now
 						# unless it's supposed to stay hidden, of course
 						if(! test -f /env/winhidden_^$winid)
-							echo unhide >$f/wctl >[2]/dev/null
+							unhide=($unhide $f/wctl)
 					}
 					# and remember it was hidden on the desktop we're still on
 					if(~ $windesk $curdesktop && ! test -f /env/winhidden_^$winid)
@@ -99,15 +100,24 @@ fn desktop {
 		}
 	}
 	if(~ $shift 0){
+		winid=()
 		if(test -f /env/windeskcur_^$1){
 			winid=`{cat /env/windeskcur_^$1}
 			if(test -d /dev/wsys/^$winid && test -f /env/windesk_^$winid && ~ `{cat /env/windesk_^$winid} $1)
-				echo current >/dev/wsys/^$winid^/wctl >[2]/dev/null
+				;
+			if not
+				winid=()
+		}
+		for(w in $unhide)
+			echo unhide >$w
+		if(! ~ $#winid 0){
+			echo top >/dev/wsys/^$winid^/wctl >[2]/dev/null
+			echo current >/dev/wsys/^$winid^/wctl >[2]/dev/null
 		}
 		curdesktop=$1
 	}
 	for(w in $hide)
-		echo hide >$w
+		echo hide >$w &
 }
 
 fn togglesticky {
