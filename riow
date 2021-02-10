@@ -145,10 +145,9 @@ fn arrows {
 		~ $1 down  && y=+$s
 		~ $1 left  && x=-$s
 
-		if(~ $3 0 && ~ $4 0){
+		if(~ $3 0 && ~ $4 0)
 			echo move -minx $x -miny $y >> $f/wctl
-		}
-		if not{
+		if not {
 			if(~ $4 0)
 				echo resize -maxx $x -maxy $y >> $f/wctl
 			if not
@@ -177,17 +176,15 @@ fn handle {
 	if not while(! ~ $#* 0){
 		if(~ $1 alt || ~ $1 ctl || ~ $1 shift)
 			eval '$1=$state'
-		if not {
-			if(~ $m c) key=$1
-			if(~ $m k) ukey=$1
-		}
+		if not if(~ $m c) key=$1
+		if not if(~ $m k) ukey=$1
 		shift
 	}
 	if(~ $ctl 0 && ~ $alt 0){
 		if(~ $shift 0){
-			if(~ $key enter) window
-			if(~ $key f)     togglefullscreen
-			if(~ $key s)     togglesticky
+			if(~ $key enter)    window >[2]/dev/null
+			if not if(~ $key f) togglefullscreen
+			if not if(~ $key s) togglesticky
 		}
 		if(~ $ukey [0-9] && ! ~ $ukey $curdesktop)
 			desktop $ukey
