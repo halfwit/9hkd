@@ -197,8 +197,10 @@ scrsize
 fn work {
 	echo $curdesktop
 	while(s=`{read}){
+		olddesktop=$curdesktop
 		handle $s
-		echo $curdesktop
+		if(! ~ $olddesktop $curdesktop)
+			echo $curdesktop
 	}
 }
 
