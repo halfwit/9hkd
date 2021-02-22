@@ -28,11 +28,13 @@ fn winlabel {
 }
 
 fn curwindow {
+	cur=''
 	for(f in /dev/wsys/*){
 		a=`{winread $f}
 		if(~ $a(5) current)
-			basename $f
+			cur=`{basename $f}
 	}
+	echo -n $cur
 }
 
 fn togglefullscreen {
