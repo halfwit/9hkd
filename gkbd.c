@@ -41,7 +41,7 @@ main(int argc, char **argv)
 		out[n++] = ' ';
 		while(*s){
 			s += chartorune(&r, s);
-			if(r == 0xfffd){
+			if(r == Runeerror){
 				n = -1;
 				break;
 			}
