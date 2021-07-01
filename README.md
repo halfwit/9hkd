@@ -23,8 +23,13 @@ All that with simple shortcuts.
 
 ## Installation and usage
 
-Run `mk install` in this repo.  Apply `9front.diff` on your sources
- (`hg import --no-commit 9front.diff`), rebuild `rio`.
+Run `mk install` in this repo.  Apply `9front.diff` and rebuild/reinstall `rio`:
+
+	cat 9front.diff | @{cd /sys/src/cmd/rio && ape/patch -p5 && mk install}
+
+As a matter of fact, you can copy the original `rio` directory
+somewhere, apply the patch, and install under your user's `bin`
+instead.
 
 To start `riow`, either through `riostart`, or by hand:
 
