@@ -31,6 +31,7 @@ static int wsys; /* rios /dev/wsys fd */
 static int mod;
 static W *ws, *wcur;
 static int wsn;
+static int vd2wcur[10] = {-1};
 
 static char *sticky[] = {
 	"bar", "cat clock", "clock", "faces", "kbmap", "stats", "winwatch",
@@ -83,7 +84,7 @@ wsupdate(void)
 		for(k = 0, seen = 0; k < wsn; k++){
 			if(ws[k].id == w->id){
 				w->vd = ws[k].vd;
-				w->flags = ws[k].flags & ~Fvisible;
+				w->flags = ws[k].flags & ~(Fvisible|Fcurrent);
 				if(w->flags & Ffullscreen)
 					w->r = ws[k].r;
 				seen = 1;
@@ -166,16 +167,24 @@ vdaction(int nvd)
 	if(mod == Mmod4){
 		wcur = nil;
 		wcurf = -1;
+		vd2wcur[vd] = -1;
 		for(w = ws; w < ws+wsn; w++){
 			if((f = wwctl(w->id, OWRITE)) < 0)
 				continue;
+
 			if(w->flags & Fvisible)
 				w->vd = vd;
-			if(w->vd != nvd && (w->flags & Fsticky) == 0)
+			else if(w->vd == vd)
+				w->vd = -1;
+
+			if(w->flags & Fcurrent)
+				vd2wcur[vd] = w->id;
+
+			if(w->vd != nvd && (w->flags & Fsticky) == 0){
 				fprint(f, "hide");
-			else{
+			}else{
 				fprint(f, "unhide");
-				if((w->flags & Fcurrent) && wcurf < 0){
+				if(vd2wcur[nvd] == w->id && wcurf < 0){
 					wcur = w;
 					wcurf = f;
 					f = -1;
@@ -195,6 +204,7 @@ vdaction(int nvd)
 		if((f = wwctl(wcur->id, OWRITE)) >= 0){
 			fprint(f, "hide");
 			wcur->vd = nvd;
+			vd2wcur[nvd] = wcur->id; /* bring to the top */
 			wcur = nil;
 			close(f);
 		}
