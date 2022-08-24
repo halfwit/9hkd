@@ -2,9 +2,8 @@
 
 Some kind of window management experiments with rio.  What does it do?
 It gives you virtual desktops to move window around to, by pressing
-keys, like i3. The window management code is written in `rc` and is done
-by reading and writing `/dev/wsys` for the most part. There are minimal
-changes to `rio` (to provide an additional `/srv/riogkbd.*` file).
+keys, like i3.  The window management is done by reading and writing
+`/dev/wsys` for the most part.
 
 *No guarantees, use at your own risk and blah.  This isn't supposed to
 work with drawterm.*
@@ -23,22 +22,36 @@ All that with simple shortcuts.
 
 ## Installation and usage
 
-Run `mk install` in this repo.  Apply `9front.diff` and rebuild/reinstall `rio`:
+Run `mk install` in this repo.
 
-	cat 9front.diff | @{cd /sys/src/cmd/rio && ape/patch -p5 && mk install}
+`riow` uses `/dev/kbdtap` of rio and should be placed as *last* in the chain of
+`kbdtap` users (after `ktrans` and/or `reform/shortcuts`).
 
-As a matter of fact, you can copy the original `rio` directory
-somewhere, apply the patch, and install under your user's `bin`
-instead.
+Running it alone:
 
-To start `riow`, either through `riostart`, or by hand:
+	riow </dev/kbdtap >/dev/kbdtap >[3]/dev/null
 
-	window -scroll riow
+Note that the current desktop number is printed to fd 3.
 
-If you're *NOT* using [bar](https://git.sr.ht/~ft/bar), run with
-`-hide` as well.
+Running with [bar](https://git.sr.ht/~ft/bar) is recommended.  For
+example, with additional `zuke(1)` controls and `reform/shortcuts`:
 
-Modify `riow` to your own needs.
+	; cat $home/rc/bin/Bar
+	#!/bin/rc
+	rfork ne
+	
+	fn bar {
+		sed -u 's/$/ │ ⏮ │ ⏯ │ ⏭/g' \
+		| /bin/bar \
+		| awk -v 'c=plumb -d audio ''key ' '
+			/⏮/{system(c"<''")}
+			/⏯/{system(c"p''")}
+			/⏭/{system(c">''")}
+			' >[2]/dev/null
+	}
+	</dev/kbdtap reform/shortcuts | riow >/dev/kbdtap |[3] bar
+
+This can be running on rio startup by adding `window Bar` to your `riostart` script.
 
 ## Keys
 
@@ -49,14 +62,11 @@ Mod4-enter          start a new window
 Mod4-[0..9]         switch to a specific virtual desktop
 Mod4-shift-[0..9]   move the current window to a specific virtual desktop
 
-Mod4-[↑↓←→]         move the window (big steps)
-Mod4-shift-[↑↓←→]   move the window (small steps)
+Mod4-[↑↓←→]         move the window (small steps)
+Mod4-ctrl-[↑↓←→]    move the window (big steps)
 
-Mod4-ctrl-[↑↓←→]        drag bottom-right of the window (big steps)
-Mod4-ctrl-shift-[↑↓←→]  drag bottom-right of the window (small steps)
-
-Mod4-alt-[↑↓←→]        drag top-left of the window (big steps)
-Mod4-alt-shift-[↑↓←→]  drag top-left of the window (small steps)
+Mod4-shift-[↑↓←→]       resize the window (small steps)
+Mod4-shift-ctrl-[↑↓←→]  resize the window (big steps)
 ```
 
 ## Extras
