@@ -314,7 +314,7 @@ process(char *s)
 static void
 usage(void)
 {
-	fprint(2, "usage: [-l light_step] [-v vol_step] %s\n", argv0);
+	fprint(2, "usage: %s\n", argv0);
 	exits("usage");
 }
 
