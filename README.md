@@ -22,16 +22,8 @@ All that with simple shortcuts.
 
 ## Installation and usage
 
-Run `mk install` in this repo.
-
-`riow` uses `/dev/kbdtap` of rio and should be placed as *last* in the chain of
-`kbdtap` users (after `ktrans` and/or `reform/shortcuts`).
-
-Running it alone:
-
-	riow </dev/kbdtap >/dev/kbdtap >[3]/dev/null
-
-Note that the current desktop number is printed to fd 3.
+	mk install
+	man riow
 
 Running with [bar](https://git.sr.ht/~ft/bar) is recommended.  For
 example, with additional `zuke(1)` controls and `reform/shortcuts`:
@@ -50,24 +42,6 @@ example, with additional `zuke(1)` controls and `reform/shortcuts`:
 			' >[2]/dev/null
 	}
 	</dev/kbdtap reform/shortcuts | riow >/dev/kbdtap |[3] bar
-
-This can be running on rio startup by adding `window Bar` to your `riostart` script.
-
-## Keys
-
-```
-Mod4-f              toggle fullscreen for the current window
-Mod4-s              toggle "sticky" mode for the current window
-Mod4-enter          start a new window
-Mod4-[0..9]         switch to a specific virtual desktop
-Mod4-shift-[0..9]   move the current window to a specific virtual desktop
-
-Mod4-[↑↓←→]         move the window (small steps)
-Mod4-ctrl-[↑↓←→]    move the window (big steps)
-
-Mod4-shift-[↑↓←→]       resize the window (small steps)
-Mod4-shift-ctrl-[↑↓←→]  resize the window (big steps)
-```
 
 ## Extras
 
