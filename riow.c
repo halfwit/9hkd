@@ -33,8 +33,15 @@ static W *ws, *wcur;
 static int wsn;
 static int vd2wcur[10] = {-1};
 
-static char *sticky[] = {
-	"bar", "cat clock", "clock", "faces", "kbmap", "stats", "winwatch",
+static char *sticky[32] = {
+	"bar",
+	"cat clock",
+	"clock",
+	"faces",
+	"kbmap",
+	"stats",
+	"winwatch",
+	nil,
 };
 
 static int
@@ -111,7 +118,7 @@ wsupdate(void)
 				close(f);
 				if(n > 0){
 					s[n] = 0;
-					for(k = 0; k < nelem(sticky); k++){
+					for(k = 0; k < nelem(sticky) && sticky[k] != nil; k++){
 						if(strcmp(sticky[k], s) == 0){
 							w->flags |= Fsticky;
 							break;
@@ -314,7 +321,7 @@ process(char *s)
 static void
 usage(void)
 {
-	fprint(2, "usage: %s\n", argv0);
+	fprint(2, "usage: %s [-s label]\n", argv0);
 	exits("usage");
 }
 
@@ -324,7 +331,15 @@ main(int argc, char **argv)
 	char b[128];
 	int i, j, n;
 
+	for(n = 0; sticky[n] != nil; n++)
+		;
+
 	ARGBEGIN{
+	case 's':
+		if(n >= nelem(sticky))
+			sysfatal("ewwww");
+		sticky[n++] = EARGF(usage());
+		break;
 	default:
 		usage();
 	}ARGEND
