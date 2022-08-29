@@ -112,17 +112,20 @@ wsupdate(void)
 		if(!seen){
 			/* not seen previously - set the new state for it */
 			w->vd = vd;
-			snprint(s, sizeof(s), "/dev/wsys/%d/label", w->id);
-			if((f = open(s, OREAD)) >= 0){
-				n = read(f, s, sizeof(s)-1);
-				close(f);
-				if(n > 0){
-					s[n] = 0;
-					for(k = 0; k < nelem(sticky) && sticky[k] != nil; k++){
-						if(strcmp(sticky[k], s) == 0){
-							w->flags |= Fsticky;
-							break;
-						}
+		}
+
+		/* because a different program can run in any window we have to re-read */
+		snprint(s, sizeof(s), "/dev/wsys/%d/label", w->id);
+		w->flags &= ~Fsticky;
+		if((f = open(s, OREAD)) >= 0){
+			n = read(f, s, sizeof(s)-1);
+			close(f);
+			if(n > 0){
+				s[n] = 0;
+				for(k = 0; k < nelem(sticky) && sticky[k] != nil; k++){
+					if(strcmp(sticky[k], s) == 0){
+						w->flags |= Fsticky;
+						break;
 					}
 				}
 			}
@@ -235,6 +238,52 @@ arrowaction(int x, int y)
 	close(f);
 }
 
+static struct {
+	int x, y;
+}cyclectx;
+
+static int
+cyclecmp(void *a_, void *b_)
+{
+	W *a = a_, *b = b_;
+
+	return cyclectx.x*(a->r.min.x - b->r.min.x) + cyclectx.y*(a->r.min.y - b->r.min.y);
+}
+
+static void
+cycleaction(int x, int y)
+{
+	int wcurid, i, f;
+	W *w, *w₀;
+
+	wcurid = wcur == nil ? -1 : wcur->id;
+	cyclectx.x = x;
+	cyclectx.y = y;
+	qsort(ws, wsn, sizeof(*ws), cyclecmp);
+	w₀ = nil;
+	wcur = nil;
+	for(i = 0, w = ws; i < wsn; i++, w++){
+		if(w->id == wcurid){
+			wcur = w;
+			continue;
+		}
+		if((w->flags & Fsticky) != 0 || w->vd != vd)
+			continue;
+		if(w₀ == nil)
+			w₀ = w;
+		if(wcur != nil)
+			break;
+	}
+	if(i >= wsn)
+		w = w₀;
+	if(w == nil || (f = wwctl(w->id, OWRITE)) < 0)
+		return;
+	fprint(f, "top");
+	fprint(f, "current");
+	close(f);
+	wcur = w;
+}
+
 static void
 keyevent(Rune r)
 {
@@ -256,6 +305,14 @@ keyevent(Rune r)
 		arrowaction(-1, 0);
 	else if(r == Kright)
 		arrowaction(1, 0);
+	else if(r == 'h')
+		cycleaction(-1, 0);
+	else if(r == 'l')
+		cycleaction(1, 0);
+	else if(r == 'j')
+		cycleaction(0, 1);
+	else if(r == 'k')
+		cycleaction(0, -1);
 }
 
 static void

@@ -58,6 +58,9 @@ option.
 Spawn a new
 .IR window(1) .
 .TP
+.B Kmod4+h/j/k/l
+Focus left/down/up/right.
+.TP
 .B Kmod4+arrows
 Move the current window in the specified direction.
 .TP

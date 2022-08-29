@@ -13,7 +13,8 @@ work with drawterm.*
  * virtual desktops from 1 to 0
  * switch between desktops
  * move windows between desktops
- * toggle fullscreen on the current window
+ * switch focus between windows
+ * toggle fullscreen mode on the current window
  * start a new window
  * "sticky" programs, by default `stats`, `kbmap` etc are shown on every desktop
  * toggle "sticky" mode for current window
