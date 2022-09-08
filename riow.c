@@ -104,8 +104,10 @@ wsupdate(void)
 			if(strcmp(t[k], "current") == 0){
 				w->flags |= Fcurrent;
 				wcur = w;
+				w->vd = vd;
 			}else if(strcmp(t[k], "visible") == 0){
 				w->flags |= Fvisible;
+				w->vd = vd;
 			}
 		}
 
@@ -210,7 +212,7 @@ vdaction(int nvd)
 		}
 		vd = nvd;
 		fprint(3, "%d\n", vd);
-	}else if(mod == (Mmod4 | Mshift) && wcur != nil){
+	}else if(mod == (Mmod4 | Mshift) && wcur != nil && wcur->vd != nvd){
 		if((f = wwctl(wcur->id, OWRITE)) >= 0){
 			fprint(f, "hide");
 			wcur->vd = nvd;
