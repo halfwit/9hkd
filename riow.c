@@ -320,8 +320,8 @@ keyevent(Rune r)
 static void
 process(char *s)
 {
+	int n, o, oldmod;
 	char b[128], *p;
-	int n, o;
 	Rune r;
 
 	if(*s == 'K' && s[1] == 0)
@@ -339,6 +339,8 @@ process(char *s)
 			break;
 		}
 
+		oldmod = mod;
+
 		if(*s == 'c' && (mod & Mmod4) != 0){
 			keyevent(r);
 			continue;
@@ -351,10 +353,8 @@ process(char *s)
 				mod |= Mctl;
 			else if(r == Kshift)
 				mod |= Mshift;
-			else if(r >= '0' && r <= '9' && (mod & (Mshift|Mmod4)) == (Mshift|Mmod4)){
+			else if(r >= '0' && r <= '9' && (mod & (Mshift|Mmod4)) == (Mshift|Mmod4))
 				keyevent(r);
-				continue;
-			}
 		}else if(*s == 'K'){
 			if(r == Kmod4)
 				mod &= ~Mmod4;
@@ -363,6 +363,9 @@ process(char *s)
 			else if(r == Kshift)
 				mod &= ~Mshift;
 		}
+
+		if((oldmod | mod) & Mmod4)
+			continue;
 
 		memmove(b+o, p, n);
 		o += n;
