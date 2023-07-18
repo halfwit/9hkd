@@ -1,11 +1,11 @@
 </$objtype/mkfile
 
-TARG=riow
+TARG=9hkd
 MAN=/sys/man/1
 BIN=/$objtype/bin
 
 OFILES=\
-	riow.$O\
+	9hkd.$O\
 
 default:V: all
 
